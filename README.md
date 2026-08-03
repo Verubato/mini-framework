@@ -158,6 +158,6 @@ clients have both `CreateColor` and `SetGradient` while `SetGradient` still take
 
 ```powershell
 cd build
-.\install-luacheck.ps1     # once
-.\lint.ps1
+.\InstallLuacheck.ps1     # once
+.\Lint.ps1
 ```

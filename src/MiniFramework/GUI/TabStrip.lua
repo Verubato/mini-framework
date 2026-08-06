@@ -29,8 +29,7 @@ function M:TabStrip(options)
 	local accent = GUI.Accent
 	local idle = GUI.TabTextIdle
 	local hover = GUI.TabTextHover
-	-- The same gold the divider labels use, so a strip sitting among them reads as one family.
-	local selectedColor = GUI.DividerGold
+	local selectedColor = GUI.TabTextSelected
 	local height = options.Height or DEFAULT_HEIGHT
 	local width = options.Width or DEFAULT_WIDTH
 	local spacing = options.Spacing or DEFAULT_SPACING

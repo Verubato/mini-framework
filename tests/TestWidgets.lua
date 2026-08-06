@@ -159,6 +159,40 @@ fw.describe("MiniFramework - widgets", function()
 		fw.not_nil(tabs, "tabs")
 	end)
 
+	fw.it("creates a bare tab strip and reports the selection", function()
+		local picked
+		local strip = mini:TabStrip({
+			Parent = panel,
+			Tabs = { { Key = "trigger", Title = "Trigger" }, { Key = "look", Title = "Look" } },
+			OnSelect = function(key)
+				picked = key
+			end,
+		})
+
+		fw.not_nil(strip, "strip")
+		fw.eq(strip.GetSelected(), "trigger", "the first tab starts selected")
+		fw.eq(#strip.Buttons, 2, "one button per tab")
+
+		strip:Select("look")
+
+		fw.eq(strip.GetSelected(), "look", "selecting moves it")
+		fw.eq(picked, "look", "and reports the key")
+	end)
+
+	fw.it("honours an initial tab and ignores a key it does not have", function()
+		local strip = mini:TabStrip({
+			Parent = panel,
+			Tabs = { { Key = "one" }, { Key = "two" } },
+			InitialKey = "two",
+		})
+
+		fw.eq(strip.GetSelected(), "two", "starts where it was told to")
+
+		strip:Select("nope")
+
+		fw.eq(strip.GetSelected(), "two", "an unknown key changes nothing")
+	end)
+
 	fw.it("creates a standalone window", function()
 		local window = mini:CreateStandaloneWindow({
 			Parent = _G.UIParent,

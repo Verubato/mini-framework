@@ -29,6 +29,8 @@ function M:TabStrip(options)
 	local accent = GUI.Accent
 	local idle = GUI.TabTextIdle
 	local hover = GUI.TabTextHover
+	-- The same gold the divider labels use, so a strip sitting among them reads as one family.
+	local selectedColor = GUI.DividerGold
 	local height = options.Height or DEFAULT_HEIGHT
 	local width = options.Width or DEFAULT_WIDTH
 	local spacing = options.Spacing or DEFAULT_SPACING
@@ -54,7 +56,7 @@ function M:TabStrip(options)
 			button.Underline:SetShown(selected)
 
 			if selected then
-				button.Text:SetTextColor(hover.r, hover.g, hover.b, 1)
+				button.Text:SetTextColor(selectedColor.r, selectedColor.g, selectedColor.b, 1)
 			else
 				button.Text:SetTextColor(idle.r, idle.g, idle.b, 1)
 			end

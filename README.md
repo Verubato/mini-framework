@@ -20,7 +20,7 @@ Libs\MiniFramework\MiniFramework.xml
 The XML pulls in every framework file in the correct order, so adding a widget to the framework
 never means editing 20-odd tocs.
 
-The embed location is load-bearing: the toggle switch resolves its `Media/` textures from
+The embed location is load-bearing: the styled widgets resolve their `Media/` textures from
 `Interface\AddOns\<YourAddon>\Libs\MiniFramework\Media`, so the framework must sit at exactly
 `Libs\MiniFramework` inside the shipped addon folder.
 
@@ -116,9 +116,10 @@ file for the exact fields.
 ### Styling
 
 Widgets draw stock Blizzard art by default, so an addon dropped into the Interface options panel
-looks native. Opt into the accented restyle — toggle switches in place of checkboxes, flat slider
-track, flattened edit box fields, accent-outline buttons, gradient dividers — with a single call
-before building anything:
+looks native. Opt into the accented restyle — pill toggle switches in place of checkboxes, a flat
+slider rail with the same circle knob and a pill value chip, a pill dropdown face, flattened edit
+box fields, accent-outline buttons, gradient dividers — with a single call before building
+anything:
 
 ```lua
 mini:SetCustomStyling(true)

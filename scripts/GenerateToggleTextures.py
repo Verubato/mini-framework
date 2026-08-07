@@ -19,6 +19,36 @@ def capsule_distance(x, y, x1, x2, cy, radius):
     return math.hypot(x - px, y - cy) - radius
 
 
+def segment_distance(x, y, x1, y1, x2, y2):
+    dx, dy = x2 - x1, y2 - y1
+    t = max(0.0, min(1.0, ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy)))
+    return math.hypot(x - (x1 + t * dx), y - (y1 + t * dy))
+
+
+def chevron_distance(x, y):
+    # Downward chevron: rows run bottom-up in the TGA, so the apex sits at the low y.
+    stroke = 2.0
+    left = segment_distance(x, y, 8.0, 19.0, 16.0, 11.0)
+    right = segment_distance(x, y, 16.0, 11.0, 24.0, 19.0)
+    return min(left, right) - stroke
+
+
+def rounded_rect_distance(x, y):
+    # Signed distance to a rounded rect spanning the texture minus its margin, radius 8.
+    radius = 8.0
+    qx = abs(x - 32.0) - (31.0 - radius)
+    qy = abs(y - 16.0) - (15.0 - radius)
+    ox = max(qx, 0.0)
+    oy = max(qy, 0.0)
+    return math.hypot(ox, oy) + min(max(qx, qy), 0.0) - radius
+
+
+def rounded_ring_distance(x, y):
+    # A 1.5-texel line hugging the inside of the rounded rect's edge, so the ring's outer
+    # silhouette matches the fill's exactly and nothing pokes into the texture margin.
+    return abs(rounded_rect_distance(x, y) + 0.75) - 0.75
+
+
 def coverage(distance_fn, px, py):
     hits = 0
 
@@ -76,6 +106,14 @@ def main():
         32, 32,
         lambda x, y: math.hypot(x - 16.0, y - 16.0) - 15.0,
     )
+
+    # 32x32 downward chevron for the dropdown face.
+    write_tga(os.path.join(media, "Chevron.tga"), 32, 32, chevron_distance)
+
+    # 64x32 soft-cornered field: a filled rounded rect and its matching border ring, kept
+    # separate so fill and border tint independently.
+    write_tga(os.path.join(media, "RoundedField.tga"), 64, 32, rounded_rect_distance)
+    write_tga(os.path.join(media, "RoundedBorder.tga"), 64, 32, rounded_ring_distance)
 
 
 if __name__ == "__main__":

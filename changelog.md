@@ -4,6 +4,14 @@
 
 ### Added
 
+- The styled slider and dropdown now share the toggle's chrome. The slider's thumb is the same
+  circle knob with the same hover brightening, its value box is a pill chip, and disabling it
+  dims and greys the fill like a disabled toggle. The retail dropdown's closed face becomes a
+  soft-cornered dark field with a 1px border, white text, a chevron arrow and the shared hover
+  tint; the open menu and the classic-era dropdown paths stay stock. Built on new shared
+  helpers in `Common.lua` (`GUI.PillField`/`RoundedField` three-slice chrome,
+  `GUI.CropIcon`/`CropPill`, the `GUI.Field*`/`Knob*`/`Line*` chrome colors) and new
+  `Chevron.tga`/`RoundedField.tga`/`RoundedBorder.tga` textures.
 - `M:Checkbox` renders a pill-shaped sliding toggle switch under the accented restyle: rounded
   track, crimson fill when on, animated circular knob, hover brightening, click sounds and a
   click-through label. Disabling one dims it and swaps the fill to grey, so an on-but-locked

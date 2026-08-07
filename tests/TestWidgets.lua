@@ -135,6 +135,44 @@ fw.describe("MiniFramework - widgets", function()
 		fw.eq(slider:GetValue(), 5, "initial value comes from GetValue")
 	end)
 
+	fw.it("creates a styled slider with the shared circle thumb", function()
+		local get, set = env.Binding(5)
+
+		local built = mini:Slider({
+			Parent = panel,
+			LabelText = "Size",
+			Min = 1,
+			Max = 10,
+			Step = 1,
+			CustomStyling = true,
+			GetValue = get,
+			SetValue = set,
+		})
+
+		fw.not_nil(built.Slider, "styled slider frame")
+		fw.not_nil(built.Slider:GetThumbTexture(), "thumb texture")
+		fw.eq(built.Slider:GetValue(), 5, "initial value comes from GetValue")
+	end)
+
+	fw.it("creates a styled dropdown with a soft-cornered face", function()
+		local get, set = env.Binding("b")
+
+		local dropdown = mini:Dropdown({
+			Parent = panel,
+			LabelText = "Mode",
+			Items = { "a", "b", "c" },
+			CustomStyling = true,
+			GetValue = get,
+			SetValue = set,
+		})
+
+		fw.not_nil(dropdown, "styled dropdown")
+		fw.not_nil(dropdown.Field, "rounded face")
+		fw.not_nil(dropdown.Field.Fill, "face fill")
+		fw.not_nil(dropdown.Field.Border, "face border")
+		fw.not_nil(dropdown.Chevron, "own chevron texture")
+	end)
+
 	fw.it("creates a dropdown over its items", function()
 		local get, set = env.Binding("b")
 

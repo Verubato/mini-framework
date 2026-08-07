@@ -20,6 +20,10 @@ Libs\MiniFramework\MiniFramework.xml
 The XML pulls in every framework file in the correct order, so adding a widget to the framework
 never means editing 20-odd tocs.
 
+The embed location is load-bearing: the toggle switch resolves its `Media/` textures from
+`Interface\AddOns\<YourAddon>\Libs\MiniFramework\Media`, so the framework must sit at exactly
+`Libs\MiniFramework` inside the shipped addon folder.
+
 To re-sync every addon from this repo after making a change here:
 
 ```powershell
@@ -98,7 +102,7 @@ from its `GetValue`. Define `panel.OnMiniRefresh` for anything extra that needs 
 | `FlattenEditBox(box)` | Restyles an existing `InputBoxTemplate` box |
 | `Dropdown(options)` | `control, isModern` — modern menu, LibUIDropDownMenu, or legacy fallback |
 | `Slider(options)` | `{ Slider, EditBox, Label }` |
-| `Checkbox(options)` | CheckButton |
+| `Checkbox(options)` | CheckButton — a sliding toggle switch when styled, the stock checkbox otherwise |
 | `ColorSwatch(options)` | Colour button opening the colour picker; `GetValue`/`SetValue` use r, g, b, a with alpha 1 = opaque |
 | `List(options)` | `{ ScrollFrame, Content, Add, SetItems, GetItems }` |
 | `CreateTabs(options)` | Tab controller with `Select`, `GetSelected`, `GetContent`, `GetTabButton` |
@@ -112,8 +116,9 @@ file for the exact fields.
 ### Styling
 
 Widgets draw stock Blizzard art by default, so an addon dropped into the Interface options panel
-looks native. Opt into the accented restyle — crimson checkboxes, flat slider track, flattened edit
-box fields, accent-outline buttons, gradient dividers — with a single call before building anything:
+looks native. Opt into the accented restyle — toggle switches in place of checkboxes, flat slider
+track, flattened edit box fields, accent-outline buttons, gradient dividers — with a single call
+before building anything:
 
 ```lua
 mini:SetCustomStyling(true)

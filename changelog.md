@@ -4,6 +4,14 @@
 
 ### Added
 
+- `M:Checkbox` renders a pill-shaped sliding toggle switch under the accented restyle: rounded
+  track, crimson fill when on, animated circular knob, hover brightening, click sounds and a
+  click-through label. Disabling one dims it and swaps the fill to grey, so an on-but-locked
+  switch reads as locked. Unstyled addons keep the stock Blizzard checkbox, and the widget
+  still answers `SetChecked`/`GetChecked` either way, so call sites and layout code carry over
+  untouched. The shapes ship as two white TGAs in `Media/` (regenerate with
+  `scripts/GenerateToggleTextures.py`), tinted via the new `GUI.TintGradientH`, which colors a
+  texture's existing image where `SetGradientH` would flood it solid.
 - `M:MakeMovable(frame, position, options)` plus `ApplyPosition` / `SavePosition` /
   `SetPositionLocked`, consolidating the drag-and-persist code nine addons each had their own
   copy of. Fixes a bug in several of them: the frame object was written into saved variables

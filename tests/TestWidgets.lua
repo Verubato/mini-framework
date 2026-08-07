@@ -35,6 +35,79 @@ fw.describe("MiniFramework - widgets", function()
 		fw.eq(state.Value, false, "clicking wrote through to SetValue")
 	end)
 
+	fw.it("creates a styled toggle bound to its getter and setter", function()
+		local get, set, state = env.Binding(false)
+
+		local toggle = mini:Checkbox({
+			Parent = panel,
+			LabelText = "Enabled",
+			Tooltip = "Turns it on.",
+			CustomStyling = true,
+			GetValue = get,
+			SetValue = set,
+		})
+
+		fw.not_nil(toggle, "toggle")
+		fw.not_nil(toggle.Knob, "toggle knob")
+		fw.not_nil(toggle.Fill, "toggle fill")
+		fw.eq(toggle:GetChecked(), false, "initial state comes from GetValue")
+		fw.eq(toggle.__progress, 0, "the slide starts at the off end")
+
+		toggle:Click()
+
+		fw.eq(state.Value, true, "clicking wrote through to SetValue")
+		fw.eq(toggle:GetChecked(), true, "the button state followed")
+
+		-- One tick longer than the slide, so the animation lands and unhooks itself.
+		env.Mock.RunOnUpdate(0.2)
+
+		fw.eq(toggle.__progress, 1, "the slide finished at the on end")
+	end)
+
+	fw.it("takes the accent out of a disabled toggle and restores it", function()
+		local get, set = env.Binding(true)
+
+		local toggle = mini:Checkbox({
+			Parent = panel,
+			LabelText = "Enabled",
+			CustomStyling = true,
+			GetValue = get,
+			SetValue = set,
+		})
+
+		-- The mock's Disable does not fire OnDisable the way the client does, so drive the
+		-- handlers directly.
+		toggle:GetScript("OnDisable")(toggle)
+
+		fw.eq(toggle:GetAlpha(), 0.3, "disabling dims the whole control")
+		fw.neq(toggle.__fillColor, mini.GUI.Accent, "disabling swaps the fill off the accent")
+
+		toggle:GetScript("OnEnable")(toggle)
+
+		fw.eq(toggle:GetAlpha(), 1, "enabling restores the full alpha")
+		fw.eq(toggle.__fillColor, mini.GUI.Accent, "enabling restores the accent fill")
+	end)
+
+	fw.it("snaps a styled toggle when its value changes from outside", function()
+		local get, set, state = env.Binding(true)
+
+		local toggle = mini:Checkbox({
+			Parent = panel,
+			LabelText = "Enabled",
+			CustomStyling = true,
+			GetValue = get,
+			SetValue = set,
+		})
+
+		fw.eq(toggle.__progress, 1, "the slide starts at the on end")
+
+		state.Value = false
+		toggle.MiniRefresh()
+
+		fw.eq(toggle:GetChecked(), false, "refresh re-read the source")
+		fw.eq(toggle.__progress, 0, "the visuals snapped with it")
+	end)
+
 	fw.it("creates a slider inside its bounds", function()
 		local get, set = env.Binding(5)
 

@@ -9,6 +9,8 @@
   its first notify. BREAKING: `M:Notify` no longer prefixes at all - it is now a plain print for
   messages that carry their own context, so call sites that want the classic prefixed form
   must move to `NotifyWithPrefix` (`M:NotifyCombatLockdown` already has).
+- The fixed page header draws its tab icon at 26px instead of 20px, so the title art reads
+  at a glance.
 - A panel's `MiniRefresh` cascades into registered panels nested below it (sub-tab contents,
   section frames), recursing through plain wrapper frames. Without this, a profile reset only
   refreshed a tabbed page's directly-registered controls and left the sub-tab controls showing

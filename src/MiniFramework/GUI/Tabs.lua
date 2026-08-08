@@ -361,7 +361,7 @@ function M:CreateTabs(options)
 				local headerIcon
 				if def.Icon then
 					headerIcon = header:CreateTexture(nil, "ARTWORK")
-					headerIcon:SetSize(20, 20)
+					headerIcon:SetSize(26, 26)
 					headerIcon:SetPoint("LEFT", header, "LEFT", 0, 2)
 					SetTabIcon(headerIcon, def.Icon)
 				end

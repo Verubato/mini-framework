@@ -11,6 +11,8 @@
   must move to `NotifyWithPrefix` (`M:NotifyCombatLockdown` already has).
 - The fixed page header draws its tab icon at 26px instead of 20px, so the title art reads
   at a glance.
+- `CreateTabs` honours a `TabIconSize` option for the vertical nav icons (default 20). The
+  option existed in call sites but was never read; the icon size was hardcoded.
 - A panel's `MiniRefresh` cascades into registered panels nested below it (sub-tab contents,
   section frames), recursing through plain wrapper frames. Without this, a profile reset only
   refreshed a tabbed page's directly-registered controls and left the sub-tab controls showing

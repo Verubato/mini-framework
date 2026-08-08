@@ -4,6 +4,16 @@
 
 ### Added
 
+- `M:NotifyWithPrefix(msg, ...)` prints with the addon name coloured via the new
+  `M.NotifyColor` (RRGGBB, default gold `ffd100`); an addon can override the colour before
+  its first notify. BREAKING: `M:Notify` no longer prefixes at all - it is now a plain print for
+  messages that carry their own context, so call sites that want the classic prefixed form
+  must move to `NotifyWithPrefix` (`M:NotifyCombatLockdown` already has).
+- A panel's `MiniRefresh` cascades into registered panels nested below it (sub-tab contents,
+  section frames), recursing through plain wrapper frames. Without this, a profile reset only
+  refreshed a tabbed page's directly-registered controls and left the sub-tab controls showing
+  stale values.
+
 - The styled slider and dropdown now share the toggle's chrome. The slider's thumb is the same
   circle knob with the same hover brightening, its value box is a pill chip, and disabling it
   dims and greys the fill like a disabled toggle. The retail dropdown's closed face becomes a

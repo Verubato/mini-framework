@@ -4,6 +4,8 @@
 
 ### Added
 
+- Horizontal tab strips read as controls rather than bare labels: a faint plate under every
+  tab, an accent wash rising from the underline on the selected one, and a stronger baseline.
 - `M:NotifyWithPrefix(msg, ...)` prints with the addon name coloured via the new
   `M.NotifyColor` (RRGGBB, default gold `ffd100`); an addon can override the colour before
   its first notify. BREAKING: `M:Notify` no longer prefixes at all - it is now a plain print for

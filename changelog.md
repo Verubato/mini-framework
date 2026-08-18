@@ -4,6 +4,12 @@
 
 ### Added
 
+- `M:Dropdown` takes an optional `Tooltip` string, and a `TooltipTitle` for a caller that draws
+  its own label, shown on hover the way `M:Checkbox` and `M:Slider` do. Modern menus only; the
+  legacy frames never see the hover.
+- `M:Dropdown` takes an optional `DecorateItem(button, value)` hook, run as the open menu builds
+  each row, for per-row looks the menu system cannot express such as a font list previewing
+  itself. Modern menus only.
 - Horizontal tab strips read as controls rather than bare labels: a faint plate under every
   tab, an accent wash rising from the underline on the selected one, and a stronger baseline.
 - `M:Slider` takes an optional `Tooltip` string and shows it on hover, matching `M:Checkbox`:

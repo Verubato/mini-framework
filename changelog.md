@@ -63,6 +63,11 @@
   `MinWidth`/`MinHeight` (defaulting to the starting size) and `MaxWidth`/`MaxHeight` (defaulting
   to the screen), with `OnResize` and `OnResizeStop` callbacks.
 
+### Changed
+
+- `M:IsSecret` binds its implementation once at load rather than testing for `issecretvalue` on
+  every call. It sits on hot paths in several addons.
+
 ## 1.0.0
 
 Initial extraction from MiniCC, consolidating the 22 drifted copies of `MiniFramework.lua`.

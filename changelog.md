@@ -68,6 +68,12 @@
 - `M:IsSecret` binds its implementation once at load rather than testing for `issecretvalue` on
   every call. It sits on hot paths in several addons.
 
+### Fixed
+
+- `M:Divider` unsnaps its two rules. A divider inside a scroll child sits at a fractional offset,
+  which could snap the one-pixel line onto a zero-coverage row and leave a section heading with no
+  rule at all until the page was scrolled.
+
 ## 1.0.0
 
 Initial extraction from MiniCC, consolidating the 22 drifted copies of `MiniFramework.lua`.

@@ -65,6 +65,11 @@
 
 ### Changed
 
+- `M:CleanTable` leaves a value alone when the template for it is an empty table. An empty
+  template says the addon cannot describe those keys, so recursing into it stripped every
+  user-authored entry: spell-id lists, saved profiles, anything keyed by something the schema
+  does not know. Consumers that worked around this by saving and restoring those subtrees can
+  drop the workaround.
 - `M:IsSecret` binds its implementation once at load rather than testing for `issecretvalue` on
   every call. It sits on hot paths in several addons.
 

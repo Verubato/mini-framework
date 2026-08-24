@@ -75,6 +75,9 @@
 
 ### Fixed
 
+- `M:Slider` pins its two range labels inside the slider's own width. The stock template hangs
+  them a few pixels outside its edges, so a slider in a page's leftmost column had its minimum
+  clipped against the content edge.
 - `M:Divider` unsnaps its two rules. A divider inside a scroll child sits at a fractional offset,
   which could snap the one-pixel line onto a zero-coverage row and leave a section heading with no
   rule at all until the page was scrolled.

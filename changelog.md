@@ -4,6 +4,9 @@
 
 ### Added
 
+- `GUI.RefreshPanelTree(frame)` re-reads a page and every panel registered below it, for a
+  page whose controls all sit on nested sub-tabs and which therefore carries no `MiniRefresh`
+  of its own. Use it wherever a profile reset or a profile switch refreshes an options page.
 - `M:Dropdown` takes an optional `Tooltip` string, and a `TooltipTitle` for a caller that draws
   its own label, shown on hover the way `M:Checkbox` and `M:Slider` do. Modern menus only; the
   legacy frames never see the hover.

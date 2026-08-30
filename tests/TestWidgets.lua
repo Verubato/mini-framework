@@ -531,15 +531,28 @@ fw.describe("MiniFramework - the panel header extras", function()
 	end)
 end)
 
----The confirmation dialog is a frame the framework owns, so a test reaches it by its button label.
-local function FindButton(label)
-	for _, frame in ipairs(env.Mock.Frames) do
-		if frame.GetText and frame:GetText() == label and frame.Click then
-			return frame
-		end
+---Keeps what ShowConfirm handed the client's prompt.
+---@param body fun()
+---@return table
+local function Capture(body)
+	local seen = {}
+	local real = StaticPopup_Show
+
+	StaticPopup_Show = function(which, text, _, data)
+		seen.Which, seen.Text, seen.Data = which, text, data
 	end
 
-	error("no button labelled " .. label)
+	local ok, err = pcall(body)
+
+	StaticPopup_Show = real
+
+	if not ok then
+		error(err, 0)
+	end
+
+	seen.Popup = StaticPopupDialogs[seen.Which]
+
+	return seen
 end
 
 fw.describe("MiniFramework - resetting to defaults", function()
@@ -560,39 +573,97 @@ fw.describe("MiniFramework - resetting to defaults", function()
 			end,
 		})
 
-		button:Click()
+		local seen = Capture(function()
+			button:Click()
+		end)
 
-		fw.eq(applied, false, "the click only opened the confirmation")
+		fw.not_nil(seen.Popup, "the click opened the confirmation")
+		fw.eq(seen.Popup.button1, "Reset", "labelled the way the sibling addons look for")
+		fw.eq(applied, false, "and applied nothing yet")
+	end)
+
+	fw.it("asks through the client's own prompt", function()
+		local seen = Capture(function()
+			mini:ShowConfirm({
+				Text = "Sure?",
+				OnAccept = function() end,
+			})
+		end)
+
+		fw.not_nil(seen.Popup, "the prompt was registered with the client")
+		fw.eq(seen.Text, "Sure?", "the caller's wording went as an argument")
+		fw.eq(seen.Popup.text, "%s", "so a per cent sign in it is not a format specifier")
+		fw.eq(seen.Popup.button2, CANCEL or "Cancel", "a way out that is not accepting")
+	end)
+
+	-- The sibling addons find the accept button by the wording their reset passes in.
+	fw.it("labels the accept button with the caller's wording", function()
+		local seen = Capture(function()
+			mini:ShowConfirm({
+				Text = "Sure?",
+				AcceptText = "Reset",
+				OnAccept = function() end,
+			})
+		end)
+
+		fw.eq(seen.Popup.button1, "Reset", "the caller's label")
+
+		seen = Capture(function()
+			mini:ShowConfirm({
+				Text = "Sure?",
+				OnAccept = function() end,
+			})
+		end)
+
+		fw.eq(seen.Popup.button1, YES or "Yes", "the client's own word when the caller gave none")
 	end)
 
 	fw.it("applies the defaults once the confirmation is accepted", function()
 		local applied = false
 
-		mini:ShowConfirm({
-			Text = "Sure?",
-			OnAccept = function()
-				applied = true
-			end,
-		})
+		local seen = Capture(function()
+			mini:ShowConfirm({
+				Text = "Sure?",
+				OnAccept = function()
+					applied = true
+				end,
+			})
+		end)
 
-		FindButton("Yes"):Click()
+		fw.eq(applied, false, "showing the prompt applied nothing")
+
+		seen.Popup.OnAccept(nil, seen.Data)
 
 		fw.eq(applied, true, "accepting ran the callback")
 	end)
 
-	fw.it("does nothing when the confirmation is cancelled", function()
-		local applied = false
+	-- The client reads the entry at click time, so a callback left on it would be whichever
+	-- was asked for last rather than the one the player is looking at.
+	fw.it("keeps each confirmation's callback to itself", function()
+		local first, second = false, false
 
-		mini:ShowConfirm({
-			Text = "Sure?",
-			OnAccept = function()
-				applied = true
-			end,
-		})
+		local one = Capture(function()
+			mini:ShowConfirm({
+				Text = "First?",
+				OnAccept = function()
+					first = true
+				end,
+			})
+		end)
 
-		FindButton("Cancel"):Click()
+		Capture(function()
+			mini:ShowConfirm({
+				Text = "Second?",
+				OnAccept = function()
+					second = true
+				end,
+			})
+		end)
 
-		fw.eq(applied, false, "cancelling left the settings alone")
+		one.Popup.OnAccept(nil, one.Data)
+
+		fw.eq(first, true, "the first prompt ran its own callback")
+		fw.eq(second, false, "and not the one asked for after it")
 	end)
 
 	fw.it("rejects a confirmation with nothing to accept", function()

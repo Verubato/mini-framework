@@ -11,8 +11,8 @@
   the panel's top right.
 - `M:ResetButton(options)` builds that button on its own, for a panel that does not use
   `PanelHeader`. It always confirms first, and refreshes the panel once the defaults are applied.
-- `M:ShowConfirm(options)` and `M:HideConfirm()`, a shared Yes/Cancel dialog beside the existing
-  notification-only `M:ShowDialog`.
+- `M:ShowConfirm(options)` and `M:HideConfirm()`, which ask through the client's own prompt
+  rather than a window of ours. `M:ShowDialog` is unchanged and still notification-only.
 - `M:Divider` exposes its label as `.Label`.
 
 ### Changed

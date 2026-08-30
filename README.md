@@ -95,10 +95,11 @@ from its `GetValue`. Define `panel.OnMiniRefresh` for anything extra that needs 
 | `TextLine(options)` | FontString |
 | `TextBlock(options)` | Frame of stacked lines |
 | `TextBlockSegmented(options)` | Frame of lines mixing prefix/text/suffix fonts |
-| `PanelHeader(options)` | `{ Title, Description, Anchor }` — title + version + blurb every panel opens with |
+| `PanelHeader(options)` | `{ Title, Description, Divider, Reset, Anchor }` — title + version + blurb every panel opens with. `Divider = true` (or a label string) adds the section rule below the blurb and makes it the `Anchor`; `Reset = { OnAccept = fn }` adds the reset button in the panel's top right |
 | `RedirectPanel(options)` | `{ Content, Title, Version, Message, Button, Anchor }` — centred wordmark splash pointing at the addon's own window |
 | `Divider(options)` | Labelled horizontal rule |
 | `Button(options)` | Button |
+| `ResetButton(options)` | Reset-to-defaults button anchored top right, which confirms before running `OnAccept` and then refreshes the panel |
 | `EditBox(options)` | `{ EditBox, Label }` — supports `Numeric`, `MultiLine`, `Readonly` |
 | `FlattenEditBox(box)` | Restyles an existing `InputBoxTemplate` box |
 | `Dropdown(options)` | `control, isModern` — modern menu, LibUIDropDownMenu, or legacy fallback |
@@ -109,6 +110,7 @@ from its `GetValue`. Define `panel.OnMiniRefresh` for anything extra that needs 
 | `CreateTabs(options)` | Tab controller with `Select`, `GetSelected`, `GetContent`, `GetTabButton` |
 | `WireTabNavigation(controls)` | Tab/Shift+Tab focus cycling |
 | `ShowDialog(options)` / `HideDialog()` | Shared notification dialog |
+| `ShowConfirm(options)` / `HideConfirm()` | Shared Yes/Cancel dialog; `OnAccept` runs only after the user agrees |
 | `CreateStandaloneWindow(options)` | Draggable window with title bar, close button and content frame; `Resizable` adds edge and corner drag handles |
 
 Every widget takes a single `options` table; see the `---@class` annotations at the bottom of each
@@ -127,7 +129,7 @@ mini:SetCustomStyling(true)
 ```
 
 Pass `CustomStyling` to an individual widget to override that either way. Chrome that has no
-Blizzard equivalent — `CreateTabs`, `CreateStandaloneWindow`, `ShowDialog` — is always styled.
+Blizzard equivalent — `CreateTabs`, `CreateStandaloneWindow`, `ShowDialog`, `ShowConfirm` — is always styled.
 
 Hold a single widget kind back with the second argument. A panel that lives inside Blizzard's
 settings screen wants stock buttons, because an accent-outline button clashes with the Blizzard

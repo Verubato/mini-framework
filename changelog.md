@@ -4,6 +4,25 @@
 
 ### Added
 
+- `M:PanelHeader` takes `Divider`, which draws the section rule below the title and blurb and
+  returns it as the `Anchor`. Pass `true` for the default "Settings" label, or a string for your
+  own. Every panel that opened with a hand-anchored rule can drop it.
+- `M:PanelHeader` takes `Reset = { OnAccept = fn }`, which places the reset-to-defaults button in
+  the panel's top right.
+- `M:ResetButton(options)` builds that button on its own, for a panel that does not use
+  `PanelHeader`. It always confirms first, and refreshes the panel once the defaults are applied.
+- `M:ShowConfirm(options)` and `M:HideConfirm()`, a shared Yes/Cancel dialog beside the existing
+  notification-only `M:ShowDialog`.
+- `M:Divider` exposes its label as `.Label`.
+
+### Changed
+
+- A stock checkbox label is white rather than Blizzard gold, so it matches every other control
+  label in the framework.
+- `M:List` rows carry the same rounded field art as the other styled controls, with a hover
+  treatment, insets, and a gap between rows. The row's remove button now follows the row rather
+  than the framework-wide button setting, so the two halves cannot disagree.
+
 - `GUI.RefreshPanelTree(frame)` re-reads a page and every panel registered below it, for a
   page whose controls all sit on nested sub-tabs and which therefore carries no `MiniRefresh`
   of its own. Use it wherever a profile reset or a profile switch refreshes an options page.

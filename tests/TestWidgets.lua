@@ -454,3 +454,215 @@ fw.describe("MiniFramework - the styling flag", function()
 		fw.eq(mini.GUI.IsStyled(nil, "Button"), true, "the override is gone")
 	end)
 end)
+
+fw.describe("MiniFramework - the panel header extras", function()
+	local mini, panel
+
+	fw.before_each(function()
+		mini, panel = env.LoadWithPanel()
+	end)
+
+	fw.it("puts a section rule under the blurb and hands it back as the anchor", function()
+		local header = mini:PanelHeader({
+			Parent = panel,
+			Description = "Does a thing.",
+			Divider = true,
+		})
+
+		fw.not_nil(header.Divider, "the rule was built")
+		fw.eq(header.Anchor, header.Divider, "controls anchor below the rule, not the blurb")
+	end)
+
+	fw.it("labels the rule when given a string", function()
+		local header = mini:PanelHeader({ Parent = panel, Divider = "Appearance" })
+
+		fw.eq(header.Divider.Label:GetText(), "APPEARANCE", "the caller's own label")
+	end)
+
+	-- A full-width rule has to start at the panel's left edge, which a centred title cannot give.
+	fw.it("refuses a rule under a header that is not left aligned", function()
+		local ok = pcall(function()
+			mini:PanelHeader({ Parent = panel, Point = "TOP", Divider = true })
+		end)
+
+		fw.eq(ok, false, "a centred header raises rather than drawing a misplaced rule")
+	end)
+
+	fw.it("leaves the anchor on the blurb when no rule was asked for", function()
+		local header = mini:PanelHeader({ Parent = panel, Description = "Does a thing." })
+
+		fw.is_nil(header.Divider, "no rule")
+		fw.eq(header.Anchor, header.Description, "the blurb is still the anchor")
+	end)
+
+	fw.it("builds the reset button in the panel's top right", function()
+		local header = mini:PanelHeader({
+			Parent = panel,
+			Reset = { OnAccept = function() end },
+		})
+
+		local point, _, relative, _, y = header.Reset:GetPoint()
+
+		fw.eq(header.Reset:GetText(), "Reset to Defaults", "the standard label")
+		fw.eq(point, "TOPRIGHT", "anchored by its own top right corner")
+		fw.eq(relative, "TOPRIGHT", "to the panel's top right corner")
+		fw.eq(y, -mini.VerticalSpacing, "level with the title")
+	end)
+end)
+
+---The confirmation dialog is a frame the framework owns, so a test reaches it by its button label.
+local function FindButton(label)
+	for _, frame in ipairs(env.Mock.Frames) do
+		if frame.GetText and frame:GetText() == label and frame.Click then
+			return frame
+		end
+	end
+
+	error("no button labelled " .. label)
+end
+
+fw.describe("MiniFramework - resetting to defaults", function()
+	local mini, panel
+
+	fw.before_each(function()
+		mini, panel = env.LoadWithPanel()
+	end)
+
+	-- Resetting throws away everything the user configured, so the click must not apply it.
+	fw.it("asks before it resets", function()
+		local applied = false
+
+		local button = mini:ResetButton({
+			Parent = panel,
+			OnAccept = function()
+				applied = true
+			end,
+		})
+
+		button:Click()
+
+		fw.eq(applied, false, "the click only opened the confirmation")
+	end)
+
+	fw.it("applies the defaults once the confirmation is accepted", function()
+		local applied = false
+
+		mini:ShowConfirm({
+			Text = "Sure?",
+			OnAccept = function()
+				applied = true
+			end,
+		})
+
+		FindButton("Yes"):Click()
+
+		fw.eq(applied, true, "accepting ran the callback")
+	end)
+
+	fw.it("does nothing when the confirmation is cancelled", function()
+		local applied = false
+
+		mini:ShowConfirm({
+			Text = "Sure?",
+			OnAccept = function()
+				applied = true
+			end,
+		})
+
+		FindButton("Cancel"):Click()
+
+		fw.eq(applied, false, "cancelling left the settings alone")
+	end)
+
+	fw.it("rejects a confirmation with nothing to accept", function()
+		local ok = pcall(function()
+			mini:ShowConfirm({ Text = "Sure?" })
+		end)
+
+		fw.eq(ok, false, "a dialog whose Yes does nothing is a bug, not a no-op")
+	end)
+end)
+
+fw.describe("MiniFramework - list rows", function()
+	local mini, panel
+
+	fw.before_each(function()
+		mini, panel = env.LoadWithPanel()
+		mini:SetCustomStyling(true, { Button = false })
+	end)
+
+	---@return table[] rows in the order the list laid them out
+	local function BuildRows(customStyling)
+		local list = mini:List({
+			Parent = panel,
+			RowWidth = 200,
+			RowHeight = 22,
+			CustomStyling = customStyling,
+			OnRemove = function() end,
+		})
+
+		list:SetItems({ "alpha", "beta" })
+
+		return { list.Content:GetChildren() }
+	end
+
+	fw.it("backs a styled row with field art, inset from the row's own edges", function()
+		local rows = BuildRows()
+		local _, _, _, x = rows[1].Text:GetPoint()
+
+		fw.not_nil(rows[1].Field, "the row was given field art")
+		fw.eq(x, 10, "the label clears the rounded end")
+	end)
+
+	-- A stock gold button on the dark field art reads as two widgets stuck together, and every
+	-- addon that uses a list also holds Button back to stock art for its settings panel.
+	fw.it("keeps the remove button in step with the row it sits on", function()
+		local rows = BuildRows()
+
+		fw.neq(rows[1].Remove.__template, "UIPanelButtonTemplate", "the button follows the row")
+	end)
+
+	fw.it("leaves an unstyled row bare", function()
+		local rows = BuildRows(false)
+		local _, _, _, x = rows[1].Text:GetPoint()
+
+		fw.is_nil(rows[1].Field, "no field art")
+		fw.eq(x, 0, "no inset")
+		fw.eq(rows[1].Remove.__template, "UIPanelButtonTemplate", "stock button")
+	end)
+
+	fw.it("parts styled rows so their field art does not touch", function()
+		local rows = BuildRows()
+		local _, _, _, _, first = rows[1]:GetPoint()
+		local _, _, _, _, second = rows[2]:GetPoint()
+
+		fw.eq(first - second, 24, "one row height plus the gap")
+	end)
+end)
+
+fw.describe("MiniFramework - label colour", function()
+	local mini, panel
+
+	fw.before_each(function()
+		mini, panel = env.LoadWithPanel()
+	end)
+
+	-- Blizzard's own checkbox label is gold. Every other control label in the framework is white,
+	-- and a settings page that mixes the two looks like two addons.
+	fw.it("gives a stock checkbox a white label", function()
+		mini:SetCustomStyling(false)
+
+		local checkbox = mini:Checkbox({
+			Parent = panel,
+			LabelText = "Show text",
+			GetValue = function()
+				return true
+			end,
+			SetValue = function() end,
+		})
+
+		local label = mini.GUI.GetCheckboxLabel(checkbox)
+
+		fw.eq(label:GetFontObject(), "GameFontHighlight", "white, not Blizzard gold")
+	end)
+end)

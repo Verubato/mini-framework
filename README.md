@@ -95,7 +95,7 @@ from its `GetValue`. Define `panel.OnMiniRefresh` for anything extra that needs 
 | `TextLine(options)` | FontString |
 | `TextBlock(options)` | Frame of stacked lines |
 | `TextBlockSegmented(options)` | Frame of lines mixing prefix/text/suffix fonts |
-| `PanelHeader(options)` | `{ Title, Description, Divider, Reset, Anchor }` — title + version + blurb every panel opens with. `Divider = true` (or a label string) adds the section rule below the blurb and makes it the `Anchor`; `Reset = { OnAccept = fn }` adds the reset button in the panel's top right |
+| `PanelHeader(options)` | `{ Title, Description, Divider, Reset, Test, Anchor }` — title + version + blurb every panel opens with. `Divider = true` (or a label string) adds the section rule below the blurb and makes it the `Anchor`; `Reset = { OnAccept = fn }` adds the reset button in the panel's top right, and `Test = { OnClick = fn }` one to its left. Both centre on the title |
 | `RedirectPanel(options)` | `{ Content, Title, Version, Message, Button, Anchor }` — centred wordmark splash pointing at the addon's own window |
 | `Divider(options)` | Labelled horizontal rule |
 | `Button(options)` | Button |

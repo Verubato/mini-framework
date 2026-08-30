@@ -537,18 +537,19 @@ fw.describe("MiniFramework - the panel header extras", function()
 		fw.eq(header.Anchor, header.Description, "the blurb is still the anchor")
 	end)
 
-	fw.it("builds the reset button in the panel's top right", function()
+	fw.it("builds the reset button in the panel's top right, centred on the title", function()
 		local header = mini:PanelHeader({
 			Parent = panel,
 			Reset = { OnAccept = function() end },
 		})
 
-		local point, _, relative, _, y = header.Reset:GetPoint()
+		local point, relativeTo, relative, _, y = header.Reset:GetPoint()
 
 		fw.eq(header.Reset:GetText(), "Reset to Defaults", "the standard label")
-		fw.eq(point, "TOPRIGHT", "anchored by its own top right corner")
-		fw.eq(relative, "TOPRIGHT", "to the panel's top right corner")
-		fw.eq(y, -mini.VerticalSpacing, "level with the title")
+		fw.eq(point, "RIGHT", "anchored by its own vertical centre, not its top edge")
+		fw.eq(relativeTo, panel, "to the panel")
+		fw.eq(relative, "TOPRIGHT", "measured down from the panel's top right corner")
+		fw.eq(y, -mini.VerticalSpacing - header.Title:GetStringHeight() / 2, "level with the middle of the title")
 	end)
 
 	fw.it("puts the test button left of the reset button", function()
@@ -574,12 +575,60 @@ fw.describe("MiniFramework - the panel header extras", function()
 			Test = { OnClick = function() end, Text = "Try It" },
 		})
 
-		local point, relativeTo, relative = header.Test:GetPoint()
+		local point, relativeTo, relative, _, y = header.Test:GetPoint()
 
 		fw.eq(header.Test:GetText(), "Try It", "the caller's own label")
-		fw.eq(point, "TOPRIGHT", "anchored by its own top right corner")
+		fw.eq(point, "RIGHT", "anchored by its own vertical centre, not its top edge")
 		fw.eq(relativeTo, panel, "to the panel")
-		fw.eq(relative, "TOPRIGHT", "at the panel's top right corner")
+		fw.eq(relative, "TOPRIGHT", "measured down from the panel's top right corner")
+		fw.eq(y, -mini.VerticalSpacing - header.Title:GetStringHeight() / 2, "level with the middle of the title")
+	end)
+
+	-- The buttons stand taller than the title, so a blurb that cleared only the title ran into them.
+	fw.it("drops the blurb clear of the buttons rather than of the title alone", function()
+		local plain = mini:PanelHeader({ Parent = panel, Description = "Does a thing." })
+		local withButtons = mini:PanelHeader({
+			Parent = panel,
+			Description = "Does a thing.",
+			Reset = { OnAccept = function() end },
+		})
+
+		local _, _, _, _, plainY = plain.Description:GetPoint()
+		local _, _, _, _, buttonY = withButtons.Description:GetPoint()
+		local overhang = (withButtons.Reset:GetHeight() - plain.Title:GetStringHeight()) / 2
+
+		fw.eq(buttonY, plainY - overhang, "the blurb drops by exactly what the button hangs past the title")
+	end)
+
+	fw.it("drops the rule clear of the buttons when there is no blurb to carry it", function()
+		local plain = mini:PanelHeader({ Parent = panel, Divider = true })
+		local withButtons = mini:PanelHeader({
+			Parent = panel,
+			Divider = true,
+			Test = { OnClick = function() end },
+		})
+
+		local _, _, _, _, plainY = plain.Divider:GetPoint(1)
+		local _, _, _, _, buttonY = withButtons.Divider:GetPoint(1)
+		local overhang = (withButtons.Test:GetHeight() - plain.Title:GetStringHeight()) / 2
+
+		fw.eq(buttonY, plainY - overhang, "the rule drops by exactly what the button hangs past the title")
+	end)
+
+	-- The blurb has already taken the drop, so handing it to the rule as well doubles it.
+	fw.it("leaves the rule alone once the blurb has cleared the buttons", function()
+		local plain = mini:PanelHeader({ Parent = panel, Description = "Does a thing.", Divider = true })
+		local withButtons = mini:PanelHeader({
+			Parent = panel,
+			Description = "Does a thing.",
+			Divider = true,
+			Reset = { OnAccept = function() end },
+		})
+
+		local _, _, _, _, plainY = plain.Divider:GetPoint(1)
+		local _, _, _, _, buttonY = withButtons.Divider:GetPoint(1)
+
+		fw.eq(buttonY, plainY, "the rule keeps its own gap below the blurb")
 	end)
 
 	fw.it("refuses a test button with nothing to click", function()

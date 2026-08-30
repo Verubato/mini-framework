@@ -9,6 +9,8 @@
   own. Every panel that opened with a hand-anchored rule can drop it.
 - `M:PanelHeader` takes `Reset = { OnAccept = fn }`, which places the reset-to-defaults button in
   the panel's top right.
+- `M:PanelHeader` takes `Test = { OnClick = fn }`, which places a test button left of the reset
+  button, or in the same corner when there is no reset button. `Text` overrides the label.
 - `M:ResetButton(options)` builds that button on its own, for a panel that does not use
   `PanelHeader`. It always confirms first, and refreshes the panel once the defaults are applied.
 - `M:ShowConfirm(options)` and `M:HideConfirm()`, which ask through the client's own prompt
@@ -17,6 +19,9 @@
 
 ### Changed
 
+- `M:PanelHeader` centres its Test and Reset buttons on the title rather than lining their top
+  edges up with it, and drops the blurb or the section rule below by however far the buttons
+  still hang past the title. The buttons used to touch the line of text under them.
 - A stock checkbox label is white rather than Blizzard gold, so it matches every other control
   label in the framework.
 - `M:List` rows carry the same rounded field art as the other styled controls, with a hover

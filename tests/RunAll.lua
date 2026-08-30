@@ -13,6 +13,13 @@ io.write("======================================\n")
 local testFiles = {
 	"tests/TestSmoke.lua",
 	"tests/TestTables.lua",
+	"tests/TestMath.lua",
+	"tests/TestNotify.lua",
+	"tests/TestSecrets.lua",
+	"tests/TestSavedVars.lua",
+	"tests/TestCombat.lua",
+	"tests/TestPosition.lua",
+	"tests/TestCompat.lua",
 	"tests/TestWidgets.lua",
 }
 

@@ -550,6 +550,51 @@ fw.describe("MiniFramework - the panel header extras", function()
 		fw.eq(relative, "TOPRIGHT", "to the panel's top right corner")
 		fw.eq(y, -mini.VerticalSpacing, "level with the title")
 	end)
+
+	fw.it("puts the test button left of the reset button", function()
+		local header = mini:PanelHeader({
+			Parent = panel,
+			Reset = { OnAccept = function() end },
+			Test = { OnClick = function() end },
+		})
+
+		local point, relativeTo, relative, x = header.Test:GetPoint()
+
+		fw.eq(header.Test:GetText(), "Test", "the standard label")
+		fw.eq(point, "RIGHT", "anchored by its own right edge")
+		fw.eq(relativeTo, header.Reset, "to the reset button")
+		fw.eq(relative, "LEFT", "on the reset button's left")
+		fw.truthy(x < 0, "clear of the reset button rather than touching it")
+	end)
+
+	-- A panel with nothing to reset still gets its test button in the same corner.
+	fw.it("puts the test button in the top right when there is no reset button", function()
+		local header = mini:PanelHeader({
+			Parent = panel,
+			Test = { OnClick = function() end, Text = "Try It" },
+		})
+
+		local point, relativeTo, relative = header.Test:GetPoint()
+
+		fw.eq(header.Test:GetText(), "Try It", "the caller's own label")
+		fw.eq(point, "TOPRIGHT", "anchored by its own top right corner")
+		fw.eq(relativeTo, panel, "to the panel")
+		fw.eq(relative, "TOPRIGHT", "at the panel's top right corner")
+	end)
+
+	fw.it("refuses a test button with nothing to click", function()
+		local ok = pcall(function()
+			mini:PanelHeader({ Parent = panel, Test = true })
+		end)
+
+		fw.eq(ok, false, "a bare boolean raises rather than drawing a dead button")
+	end)
+
+	fw.it("hands back no test button when none was asked for", function()
+		local header = mini:PanelHeader({ Parent = panel, Reset = { OnAccept = function() end } })
+
+		fw.is_nil(header.Test, "no test button")
+	end)
 end)
 
 ---Keeps what ShowConfirm handed the client's prompt.

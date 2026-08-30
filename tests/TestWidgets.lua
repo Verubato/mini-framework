@@ -6,6 +6,7 @@
 
 local fw = require("TestFramework")
 local env = require("Framework")
+local WowMock = require("WowMock")
 
 fw.describe("MiniFramework - widgets", function()
 	local mini, panel
@@ -359,6 +360,26 @@ fw.describe("MiniFramework - widgets", function()
 		})
 
 		mini:HideDialog()
+	end)
+
+	fw.it("draws the dialog on a texture path the client can resolve", function()
+		mini:ShowDialog({ Text = "Are you sure?" })
+
+		local backdrop
+
+		for _, frame in ipairs(WowMock.Frames) do
+			local candidate = frame.GetBackdrop and frame:GetBackdrop()
+
+			if candidate and candidate.bgFile then
+				backdrop = candidate
+			end
+		end
+
+		fw.not_nil(backdrop, "the dialog carries a backdrop")
+
+		-- Lua 5.1 drops the backslash from an unknown escape, so a path written with single
+		-- backslashes reaches the client as one unresolvable word and the art never loads.
+		fw.eq(backdrop.bgFile, "Interface\\Tooltips\\UI-Tooltip-Background", "the background path keeps its separators")
 	end)
 end)
 

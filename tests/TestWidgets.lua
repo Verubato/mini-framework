@@ -244,6 +244,43 @@ fw.describe("MiniFramework - widgets", function()
 		fw.eq(clicks, 1, "OnClick ran")
 	end)
 
+	fw.it("creates a redirect panel whose button runs its click handler", function()
+		local clicks = 0
+
+		local redirect = mini:RedirectPanel({
+			Parent = panel,
+			Version = "1.2.3",
+			Message = "Type /thing to open the settings.",
+			ButtonText = "Open Settings",
+			OnClick = function()
+				clicks = clicks + 1
+			end,
+		})
+
+		fw.not_nil(redirect, "redirect panel")
+		fw.not_nil(redirect.Content, "content frame")
+		fw.eq(redirect.Title:GetText(), env.AddonName, "the wordmark falls back to the addon name")
+		fw.eq(redirect.Version:GetText(), "1.2.3", "the version line")
+		fw.eq(redirect.Message:GetText(), "Type /thing to open the settings.", "the message")
+		fw.eq(redirect.Anchor, redirect.Button, "the button is what a caller anchors below")
+
+		redirect.Button:Click()
+
+		fw.eq(clicks, 1, "OnClick ran")
+	end)
+
+	fw.it("paints the redirect panel wordmark in the title colour", function()
+		mini:SetPalette({ TitleText = { r = 0.1, g = 0.2, b = 0.3 } })
+
+		local redirect = mini:RedirectPanel({ Parent = panel, Title = "Branded" })
+		local r, g, b = redirect.Title:GetTextColor()
+
+		fw.eq(redirect.Title:GetText(), "Branded", "an explicit title wins over the addon name")
+		fw.eq(r, 0.1, "red comes from the palette")
+		fw.eq(g, 0.2, "green comes from the palette")
+		fw.eq(b, 0.3, "blue comes from the palette")
+	end)
+
 	fw.it("creates the static widgets", function()
 		fw.not_nil(mini:TextLine({ Parent = panel, Text = "A line" }), "text line")
 		fw.not_nil(mini:TextBlock({ Parent = panel, Lines = { "First line", "Second line" } }), "text block")
@@ -372,5 +409,48 @@ fw.describe("MiniFramework - saved variables", function()
 
 		fw.eq(reset, db, "the same table instance comes back")
 		fw.eq(db.Size, 10, "the value went back to its default")
+	end)
+end)
+
+fw.describe("MiniFramework - the styling flag", function()
+	local mini, panel
+
+	fw.before_each(function()
+		mini, panel = env.LoadWithPanel()
+	end)
+
+	fw.it("holds one widget kind back while the rest stay styled", function()
+		mini:SetCustomStyling(true, { Button = false })
+
+		local button = mini:Button({ Parent = panel, Text = "Add" })
+
+		fw.eq(button.__template, "UIPanelButtonTemplate", "the button kept stock art")
+		fw.eq(mini.GUI.IsStyled(nil, "Checkbox"), true, "other kinds still follow the flag")
+	end)
+
+	fw.it("lets one widget opt back in over the override", function()
+		mini:SetCustomStyling(true, { Button = false })
+
+		local button = mini:Button({ Parent = panel, Text = "Add", CustomStyling = true })
+
+		fw.neq(button.__template, "UIPanelButtonTemplate", "the per-widget option won")
+	end)
+
+	fw.it("rejects a widget kind it does not know", function()
+		local ok, err = pcall(function()
+			mini:SetCustomStyling(true, { Buttons = false })
+		end)
+
+		fw.eq(ok, false, "a typo raises rather than silently doing nothing")
+		fw.truthy(tostring(err):find("Buttons"), "the message names the bad kind")
+	end)
+
+	-- The setter replaces the whole table, so a second bare call is how an addon would lose
+	-- overrides it set earlier.
+	fw.it("clears overrides left by an earlier call", function()
+		mini:SetCustomStyling(true, { Button = false })
+		mini:SetCustomStyling(true)
+
+		fw.eq(mini.GUI.IsStyled(nil, "Button"), true, "the override is gone")
 	end)
 end)

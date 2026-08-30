@@ -227,6 +227,27 @@ fw.describe("MiniFramework - widgets", function()
 		fw.not_nil(swatch, "swatch")
 	end)
 
+	fw.it("heads a swatch tooltip with the caller's own label", function()
+		local seen
+		local real = GameTooltip.SetText
+
+		GameTooltip.SetText = function(_, text)
+			seen = text
+		end
+
+		local swatch = mini:ColorSwatch({
+			Parent = panel,
+			TooltipTitle = "Colour",
+			GetValue = function() return 1, 1, 1, 1 end,
+			SetValue = function() end,
+		})
+
+		swatch:GetScript("OnEnter")(swatch)
+		GameTooltip.SetText = real
+
+		fw.eq(seen, "Colour", "the caller's spelling, not the library's fallback")
+	end)
+
 	fw.it("creates a button that runs its click handler", function()
 		local clicks = 0
 

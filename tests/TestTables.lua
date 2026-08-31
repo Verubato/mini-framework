@@ -58,14 +58,14 @@ fw.describe("MiniFramework - tables", function()
 		fw.eq(target.Icons.Retired, true, "Icons.Retired")
 	end)
 
-	fw.xfail("resets a wrongly typed scalar the template describes as a number", function()
-		-- Desired: a scalar of the wrong type should be reset like a table is, matching the
-		-- branch comment's promise to remove keys with wrong types.
+	fw.it("leaves a wrongly typed scalar where it is", function()
+		-- A boolean default can stand for "unset" with a string as the real value, so resetting
+		-- by type would wipe a choice the player made.
 		local target = { Size = "big" }
 
 		framework:CleanTable(target, { Size = 10 }, true, true)
 
-		fw.eq(target.Size, 10, "Size")
+		fw.eq(target.Size, "big", "Size")
 	end)
 
 	fw.it("ignores a target or template that is not a table", function()

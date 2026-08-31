@@ -113,21 +113,51 @@ fw.describe("MiniFramework - saved variable merging", function()
 		fw.is_nil(vars.Icons.Retired, "Icons.Retired")
 	end)
 
-	fw.xfail("drops every entry of a user-authored list on reset, not just its scalars", function()
-		-- Desired: a reset should remove a list entry entirely, the way it drops any other
-		-- key the defaults no longer describe, instead of leaving an empty stub behind.
+	fw.it("keeps every entry of a user-authored list on reset, fields and all", function()
 		local vars = framework:GetSavedVars({ Groups = {} })
 
 		vars.Groups[1] = { Name = "Mine" }
 
 		framework:ResetSavedVars({ Groups = {} })
 
-		fw.eq(#vars.Groups, 0, "the entry was removed")
+		fw.eq(#vars.Groups, 1, "the entry is still there")
+		fw.eq(vars.Groups[1].Name, "Mine", "Groups[1].Name")
 	end)
 
-	fw.xfail("publishes the global when a reset runs before anything was saved", function()
-		-- Desired: a reset should publish _G like GetSavedVars does, so the table it hands
-		-- back is the same one a later get returns instead of a second orphan.
+	fw.it("drops a nested table the defaults no longer describe on reset", function()
+		local vars = framework:GetSavedVars({ Icons = { Size = 10 } })
+
+		vars.Retired = { Size = 99 }
+
+		framework:ResetSavedVars({ Icons = { Size = 10 } })
+
+		fw.is_nil(vars.Retired, "Retired")
+	end)
+
+	fw.it("keeps a nested table's identity across a reset", function()
+		local vars = framework:GetSavedVars({ Icons = { Size = 10 } })
+		local icons = vars.Icons
+
+		vars.Icons.Size = 99
+
+		framework:ResetSavedVars({ Icons = { Size = 10 } })
+
+		fw.eq(vars.Icons, icons, "the same nested instance came back")
+		fw.eq(icons.Size, 10, "Icons.Size")
+	end)
+
+	fw.it("puts a false default back over a value the user chose", function()
+		-- A false default stands for "unset", so a reset has to reach the value behind it.
+		local vars = framework:GetSavedVars({ Font = false })
+
+		vars.Font = "Friz Quadrata"
+
+		framework:ResetSavedVars({ Font = false })
+
+		fw.eq(vars.Font, false, "Font")
+	end)
+
+	fw.it("publishes the global when a reset runs before anything was saved", function()
 		local vars = framework:ResetSavedVars({ Size = 10 })
 
 		fw.eq(vars.Size, 10, "the defaults were merged in")
